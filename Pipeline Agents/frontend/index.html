@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white text-center py-6">
+        <h1 class="text-3xl font-bold">Welcome to Our Product</h1>
+        <button class="mt-4 bg-white text-blue-600 font-semibold py-2 px-4 rounded">Sign Up Now</button>
+    </header>
+    <section class="p-6">
+        <h2 class="text-2xl font-bold mb-4">About Our Product</h2>
+        <p class="text-gray-700">Our product offers unique features and benefits that will enhance your experience. It is designed to be user-friendly and efficient, ensuring you get the best results.</p>
+    </section>
+    <section class="p-6 bg-white">
+        <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+        <form id="contactForm" class="space-y-4">
+            <div>
+                <label for="name" class="block text-gray-700">Name</label>
+                <input type="text" id="name" name="name" class="w-full border border-gray-300 p-2 rounded" required>
+            </div>
+            <div>
+                <label for="email" class="block text-gray-700">Email</label>
+                <input type="email" id="email" name="email" class="w-full border border-gray-300 p-2 rounded" required>
+            </div>
+            <div>
+                <label for="message" class="block text-gray-700">Message</label>
+                <textarea id="message" name="message" class="w-full border border-gray-300 p-2 rounded" required></textarea>
+            </div>
+            <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded">Send Message</button>
+        </form>
+    </section>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/babel" src="/static/js/app.js"></script>
+</body>
+</html>
