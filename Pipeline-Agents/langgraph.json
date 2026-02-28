@@ -1,7 +1,19 @@
 {
-  "dependencies": ["."],
+  "dependencies": [
+    "langchain-openai",
+    "langgraph",
+    "python-dotenv"
+  ],
+  "env": ".env",
   "graphs": {
     "agent_pipeline": "./main.py:graph"
   },
-  "env": ".env"
+  "default_input": {
+    "current_phase": "task",
+    "task_file": "docs/task_definition.md",
+    "arch_file": "docs/architecture.md",
+    "tech_file": "docs/technologies.md",
+    "review_file": "docs/code_review.md",
+    "readme_file": "README.md"
+  }
 }
