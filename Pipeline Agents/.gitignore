@@ -50,3 +50,10 @@ docker_error.txt
 .idea/
 .DS_Store
 Thumbs.db
+
+# ---------------------------------------------------
+# LANGGRAPH STUDIO I PAMIĘĆ
+# ---------------------------------------------------
+.langgraph_api/
+*.pckl
+*.pickle
