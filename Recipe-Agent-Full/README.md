@@ -23,7 +23,7 @@ Logika agenta opiera się na prostym, ale potężnym grafie stanu (`StateGraph`)
 
 ## 🚀 Wymagania wstępne
 
-* **Python 3.10+**
+* **Python 3.11+**
 * Klucz API od OpenAI
 
 ---

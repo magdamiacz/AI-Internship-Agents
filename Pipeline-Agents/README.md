@@ -31,7 +31,7 @@ Gdy użytkownik wpisze **"ok"**, skrypt Python:
 ## 🚀 Wymagania wstępne (Prerequisites)
 
 Zanim uruchomisz projekt, upewnij się, że masz zainstalowane:
-* **Python 3.10+**
+* **Python 3.11+**
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Musi być włączony w tle podczas ostatniej fazy!)
 * Klucz API od OpenAI
 
