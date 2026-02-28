@@ -14,6 +14,10 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 
+import requests
+import re
+from openai import OpenAI
+
 load_dotenv()
 
 @tool
@@ -33,7 +37,42 @@ def save_recipe_to_json(recipe_name: str, ingredients: list[str], steps: list[st
         
     return f"Przepis '{recipe_name}' został pomyślnie zapisany w pliku {filename}!"
 
-tools = [save_recipe_to_json]
+@tool
+def generate_recipe_image(recipe_name: str, visual_description: str) -> str:
+    """
+    Generuje apetyczne zdjęcie gotowego dania za pomocą DALL-E 3 na podstawie jego nazwy i opisu wizualnego, 
+    a następnie zapisuje je na dysku lokalnym.
+    Użyj tego narzędzia za każdym razem, gdy wygenerujesz nowy przepis, aby stworzyć jego wizualizację.
+    """
+    client = OpenAI() 
+    
+    prompt = (
+        f"Professional food photography, highly detailed, appetizing, cinematic lighting, "
+        f"restaurant quality. Dish: {recipe_name}. Description: {visual_description}."
+    )
+    
+    try:
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+        image_url = response.data[0].url
+        
+        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', recipe_name).lower()
+        filename = f"{safe_name}.png"
+        
+        img_data = requests.get(image_url).content
+        with open(filename, 'wb') as handler:
+            handler.write(img_data)
+            
+        return f"Zdjęcie dla '{recipe_name}' zostało pomyślnie wygenerowane i zapisane w pliku {filename}!"
+    except Exception as e:
+        return f"Wystąpił błąd podczas generowania zdjęcia: {str(e)}"
+
+tools = [save_recipe_to_json, generate_recipe_image]
 
 def encode_image(image_path: str) -> str:
     """Koduje obraz do formatu base64."""
@@ -54,6 +93,9 @@ Twoje zadania:
    - Składniki (z dokładnymi miarami, np. gramy, mililitry, sztuki).
    - Kroki przygotowania (ponumerowane, jasne i logiczne).
 2. Za każdym razem, gdy podajesz nowy przepis, wywołaj narzędzie 'save_recipe_to_json', aby zapisać ten przepis do pliku.
+3. Po zapisaniu przepisu, OBOWIĄZKOWO wywołaj narzędzie 'generate_recipe_image', aby wygenerować i zapisać zdjęcie tego dania. Jako 'visual_description' przekaż krótki, apetyczny opis wyglądu potrawy.
+4. Na koniec poinformuj użytkownika o zapisaniu przepisu i zdjęcia na dysku.
+
 Formatuj odpowiedź czytelnie używając Markdown.
 """)
 

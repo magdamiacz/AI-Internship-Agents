@@ -1,7 +1,7 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "moj_agent": "./recipe_full_agent.py:app"
+    "recipe_agent": "./recipe_full_agent.py:app"
   },
   "env": ".env"
 }
