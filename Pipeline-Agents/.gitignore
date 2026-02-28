@@ -31,14 +31,14 @@ dist/
 .next/
 
 # ---------------------------------------------------
-# PLIKI GENEROWANE PRZEZ TWOJEGO AGENTA (Zrzuty błędów)
+# PLIKI GENEROWANE PRZEZ AGENTA (Zrzuty błędów)
 # ---------------------------------------------------
 code_error.txt
 docker_error.txt
 *.log
 
 # ---------------------------------------------------
-# BAZY DANYCH (np. jeśli LangGraph zapisze stan na dysk)
+# BAZY DANYCH 
 # ---------------------------------------------------
 *.sqlite3
 *.db
