@@ -40,12 +40,13 @@ Zanim uruchomisz projekt, upewnij się, że masz zainstalowane:
 ## 🛠️ Instalacja i konfiguracja
 
 1. **Sklonuj repozytorium i przejdź do folderu z projektem:**
-```bash
+    ```bash
    git clone <link-do-repo>
    cd Pipeline-Agents
 
 
 2. **Utwórz wirtualne środowisko i aktywuj je:**
+    ```bash
     python -m venv .venv
     # Windows:
     .venv\Scripts\activate
@@ -53,8 +54,10 @@ Zanim uruchomisz projekt, upewnij się, że masz zainstalowane:
     source .venv/bin/activate
 
 3. **Zainstaluj wymagane biblioteki:**
+    ```bash
     pip install langchain-openai langgraph python-dotenv
 
 4. **Konfiguracja zmiennych środowiskowych:**
+    ```bash
     Utwórz plik .env w głównym katalogu projektu i wklej swój klucz API:
         OPENAI_API_KEY=sk-twoj-sekretny-klucz-api
