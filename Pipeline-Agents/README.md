@@ -60,4 +60,4 @@ Zanim uruchomisz projekt, upewnij się, że masz zainstalowane:
 4. **Konfiguracja zmiennych środowiskowych:**
     ```bash
     Utwórz plik .env w głównym katalogu projektu i wklej swój klucz API:
-        OPENAI_API_KEY=sk-twoj-sekretny-klucz-api
+    OPENAI_API_KEY=sk-twoj-sekretny-klucz-api
