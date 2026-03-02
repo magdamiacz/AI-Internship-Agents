@@ -17,3 +17,6 @@ class AgentState(TypedDict):
     
     # Ścieżka do wygenerowanego README.md
     readme_file: str
+
+    # Katalog wyjściowy dla wygenerowanego projektu
+    output_dir: str

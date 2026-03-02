@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culinary Chatbot 🍽️</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f0eb;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 750px;
+            height: 90vh;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        #header {
+            background: linear-gradient(135deg, #e8632a, #c0392b);
+            color: white;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        #header h1 { font-size: 20px; font-weight: 600; }
+        #header span { font-size: 28px; }
+        #header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+        /* Messages */
+        #message-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+        .message.user { align-self: flex-end; align-items: flex-end; }
+        .message.bot  { align-self: flex-start; align-items: flex-start; }
+
+        .message .label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .message .bubble {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .message.user .bubble {
+            background: #e8632a;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.bot .bubble {
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message img {
+            margin-top: 10px;
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Typing indicator */
+        .typing .bubble {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 14px 18px;
+        }
+        .dot {
+            width: 8px; height: 8px;
+            background: #aaa;
+            border-radius: 50%;
+            animation: bounce 1.2s infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+
+        /* Input */
+        #input-container {
+            display: flex;
+            padding: 16px;
+            gap: 10px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+        #user-input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 24px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #user-input:focus { border-color: #e8632a; }
+        #user-input:disabled { background: #f9f9f9; }
+
+        #send-btn {
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #e8632a;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #send-btn:hover:not(:disabled) { background: #c0392b; }
+        #send-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Error */
+        .error .bubble { background: #fdecea; color: #c0392b; }
+
+        /* Scrollbar */
+        #message-history::-webkit-scrollbar { width: 6px; }
+        #message-history::-webkit-scrollbar-track { background: transparent; }
+        #message-history::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="header">
+        <span>🍽️</span>
+        <div>
+            <h1>Culinary Chatbot</h1>
+            <p>Zapytaj mnie o przepis na dowolne danie!</p>
+        </div>
+    </div>
+
+    <div id="message-history" id="message-history">
+        <!-- Wiadomość powitalna -->
+    </div>
+
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="Napisz o jaki przepis chodzi..." />
+        <button id="send-btn" onclick="sendMessage()">Wyślij</button>
+    </div>
+</div>
+
+<script>
+    const history = document.getElementById('message-history');
+    const input = document.getElementById('user-input');
+    const btn = document.getElementById('send-btn');
+    const THREAD_ID = 'user-' + Math.random().toString(36).substr(2, 9);
+
+    // Wiadomość powitalna
+    addMessage('bot', 'Cześć! 👨‍🍳 Jestem Twoim asystentem kulinarnym. Powiedz mi jakie danie Cię interesuje, a przygotuję przepis i wygeneruję zdjęcie!');
+
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage('user', text);
+        input.value = '';
+        setLoading(true);
+
+        const typingEl = addTyping();
+
+        try {
+            const res = await fetch('http://localhost:8000/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, thread_id: THREAD_ID })
+            });
+
+            if (!res.ok) throw new Error(`Błąd serwera: ${res.status}`);
+            const data = await res.json();
+
+            typingEl.remove();
+            const msgEl = addMessage('bot', data.response);
+
+            if (data.image_path) {
+                const img = document.createElement('img');
+                img.src = `http://localhost:8000/images/${data.image_path}`;
+                img.alt = 'Wygenerowane zdjęcie dania';
+                img.onerror = () => img.remove();
+                msgEl.appendChild(img);
+            }
+
+        } catch (err) {
+            typingEl.remove();
+            addMessage('bot', `⚠️ Błąd połączenia z backendem: ${err.message}`, 'error');
+        } finally {
+            setLoading(false);
+            history.scrollTop = history.scrollHeight;
+        }
+    }
+
+    function addMessage(type, text, extraClass = '') {
+        const wrapper = document.createElement('div');
+        wrapper.className = `message ${type} ${extraClass}`;
+
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = type === 'user' ? 'Ty' : 'Chef Bot';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(bubble);
+        history.appendChild(wrapper);
+        history.scrollTop = history.scrollHeight;
+        return wrapper;
+    }
+
+    function addTyping() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message bot typing';
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = 'Chef Bot';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        wrapper.appendChild(label);
+        wrapper.appendChild(bubble);
+        history.appendChild(wrapper);
+        history.scrollTop = history.scrollHeight;
+        return wrapper;
+    }
+
+    function setLoading(state) {
+        btn.disabled = state;
+        input.disabled = state;
+        btn.textContent = state ? '...' : 'Wyślij';
+    }
+</script>
+</body>
+</html>
