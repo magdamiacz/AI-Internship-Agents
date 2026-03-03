@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 from agent import run_agent
-from database import init_db
+from database import init_db, get_all_recipes, get_recipe_by_id
 
 app = FastAPI()
 
@@ -38,5 +38,23 @@ async def get_image(filename: str):
     file_path = f'./images/{filename}'
     if os.path.exists(file_path):
         return FileResponse(file_path)
-    else:
-        raise HTTPException(status_code=404, detail="Image not found")
+    raise HTTPException(status_code=404, detail="Image not found")
+
+@app.get("/recipes")
+async def list_recipes():
+    try:
+        return get_all_recipes()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/recipes/{recipe_id}")
+async def get_recipe(recipe_id: int):
+    try:
+        recipe = get_recipe_by_id(recipe_id)
+        if not recipe:
+            raise HTTPException(status_code=404, detail="Recipe not found")
+        return recipe
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
