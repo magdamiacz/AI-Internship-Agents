@@ -2,16 +2,18 @@ services:
   frontend:
     build:
       context: ../frontend
-      dockerfile: Dockerfile
+      dockerfile: ../docker/frontend.Dockerfile
     ports:
       - "80:80"
+
   backend:
     build:
       context: ../backend
-      dockerfile: Dockerfile
+      dockerfile: ../docker/backend.Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
     env_file:
       - ../backend/.env
+    volumes:
+      - ../backend/culinary.db:/app/culinary.db
+      - ../backend/images:/app/images

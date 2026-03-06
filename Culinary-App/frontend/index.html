@@ -1,275 +1,275 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Culinary Chatbot 🍽️</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f5f0eb;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #app {
-            width: 100%;
-            max-width: 750px;
-            height: 90vh;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Header */
-        #header {
-            background: linear-gradient(135deg, #e8632a, #c0392b);
-            color: white;
-            padding: 18px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        #header h1 { font-size: 20px; font-weight: 600; }
-        #header span { font-size: 28px; }
-        #header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
-
-        /* Messages */
-        #message-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .message {
-            display: flex;
-            flex-direction: column;
-            max-width: 80%;
-        }
-        .message.user { align-self: flex-end; align-items: flex-end; }
-        .message.bot  { align-self: flex-start; align-items: flex-start; }
-
-        .message .label {
-            font-size: 11px;
-            color: #999;
-            margin-bottom: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .message .bubble {
-            padding: 12px 16px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-        .message.user .bubble {
-            background: #e8632a;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        .message.bot .bubble {
-            background: #f0f0f0;
-            color: #333;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message img {
-            margin-top: 10px;
-            max-width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* Typing indicator */
-        .typing .bubble {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-            padding: 14px 18px;
-        }
-        .dot {
-            width: 8px; height: 8px;
-            background: #aaa;
-            border-radius: 50%;
-            animation: bounce 1.2s infinite;
-        }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-8px); }
-        }
-
-        /* Input */
-        #input-container {
-            display: flex;
-            padding: 16px;
-            gap: 10px;
-            border-top: 1px solid #eee;
-            background: white;
-        }
-        #user-input {
-            flex: 1;
-            padding: 12px 16px;
-            font-size: 14px;
-            border: 1.5px solid #ddd;
-            border-radius: 24px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        #user-input:focus { border-color: #e8632a; }
-        #user-input:disabled { background: #f9f9f9; }
-
-        #send-btn {
-            padding: 12px 22px;
-            font-size: 14px;
-            font-weight: 600;
-            background: #e8632a;
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        #send-btn:hover:not(:disabled) { background: #c0392b; }
-        #send-btn:disabled { background: #ccc; cursor: not-allowed; }
-
-        /* Error */
-        .error .bubble { background: #fdecea; color: #c0392b; }
-
-        /* Scrollbar */
-        #message-history::-webkit-scrollbar { width: 6px; }
-        #message-history::-webkit-scrollbar-track { background: transparent; }
-        #message-history::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Culinary Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--orange:#E8632A;--orange-d:#C0392B;--dark:#1A1A2E;--card:#fff;--bg:#F7F3EE;--border:#E8E0D8;--text:#3A3A3A;--muted:#888;--r:14px}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px}
+    header{width:100%;max-width:820px;background:var(--dark);border-radius:var(--r);padding:20px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .hl{display:flex;align-items:center;gap:14px}
+    .hi{font-size:32px}
+    .ht{font-family:'Playfair Display',serif;font-size:22px;color:#fff;font-weight:700}
+    .hs{font-size:12px;color:#aaa;margin-top:2px}
+    .tabs{display:flex;gap:6px;background:rgba(255,255,255,.08);border-radius:10px;padding:4px}
+    .tab-btn{padding:8px 18px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:#aaa}
+    .tab-btn.active{background:var(--orange);color:#fff}
+    .tab-btn:hover:not(.active){color:#fff}
+    .main{width:100%;max-width:820px;flex:1}
+    #panel-chat{background:var(--card);border-radius:var(--r);border:1px solid var(--border);display:flex;flex-direction:column;height:72vh;overflow:hidden}
+    #message-history{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;gap:16px}
+    #message-history::-webkit-scrollbar{width:5px}
+    #message-history::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+    .message{display:flex;flex-direction:column;max-width:78%}
+    .message.user{align-self:flex-end;align-items:flex-end}
+    .message.bot{align-self:flex-start;align-items:flex-start}
+    .msg-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:5px}
+    .bubble{padding:13px 17px;border-radius:16px;font-size:14px;line-height:1.65;white-space:pre-wrap}
+    .message.user .bubble{background:var(--orange);color:#fff;border-bottom-right-radius:4px}
+    .message.bot .bubble{background:#F0EDE8;color:var(--text);border-bottom-left-radius:4px}
+    .message img{margin-top:10px;max-width:100%;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+    .view-btn{margin-top:8px;padding:6px 14px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;background:transparent;border:1.5px solid var(--orange);color:var(--orange);border-radius:20px;cursor:pointer;transition:all .2s}
+    .view-btn:hover{background:var(--orange);color:#fff}
+    .typing .bubble{display:flex;gap:5px;align-items:center;padding:16px 18px}
+    .dot{width:7px;height:7px;background:#bbb;border-radius:50%;animation:bounce 1.2s infinite}
+    .dot:nth-child(2){animation-delay:.2s}
+    .dot:nth-child(3){animation-delay:.4s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+    #input-area{display:flex;padding:14px 16px;gap:10px;border-top:1px solid var(--border)}
+    #user-input{flex:1;padding:12px 18px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:24px;outline:none;transition:border-color .2s;background:var(--bg)}
+    #user-input:focus{border-color:var(--orange)}
+    #user-input:disabled{opacity:.5}
+    #send-btn{padding:12px 24px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;background:var(--orange);color:#fff;border:none;border-radius:24px;cursor:pointer;transition:background .2s}
+    #send-btn:hover:not(:disabled){background:var(--orange-d)}
+    #send-btn:disabled{background:#ccc;cursor:not-allowed}
+    #panel-recipes{display:none}
+    .rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .rt{font-family:'Playfair Display',serif;font-size:20px;color:var(--dark)}
+    .refresh-btn{padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;background:var(--dark);color:#fff;border:none;border-radius:8px;cursor:pointer;transition:opacity .2s}
+    .refresh-btn:hover{opacity:.85}
+    #recipes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+    .recipe-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s}
+    .recipe-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+    .recipe-card img{width:100%;height:160px;object-fit:cover;display:block}
+    .rc-no-img{width:100%;height:160px;background:linear-gradient(135deg,#f5ede4,#ffe8d6);display:flex;align-items:center;justify-content:center;font-size:48px}
+    .rc-body{padding:14px 16px}
+    .rc-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--dark);margin-bottom:4px}
+    .rc-date{font-size:11px;color:var(--muted)}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted);background:var(--card);border-radius:var(--r);border:1px solid var(--border)}
+    .empty-state .ei{font-size:48px;margin-bottom:12px}
+    .empty-state p{font-size:15px}
+    #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+    #modal-overlay.open{display:flex}
+    #modal{background:var(--card);border-radius:var(--r);max-width:580px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+    #modal::-webkit-scrollbar{width:5px}
+    #modal::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+    #modal img{width:100%;height:240px;object-fit:cover;border-radius:var(--r) var(--r) 0 0}
+    .modal-no-img{width:100%;height:160px;background:linear-gradient(135deg,#f5ede4,#ffe8d6);border-radius:var(--r) var(--r) 0 0;display:flex;align-items:center;justify-content:center;font-size:64px}
+    .mb{padding:24px 28px}
+    .mn{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--dark);margin-bottom:20px}
+    .ms-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin-bottom:10px;margin-top:20px}
+    .mi{list-style:none;display:flex;flex-direction:column;gap:6px}
+    .mi li{font-size:14px;color:var(--text);padding:8px 12px;background:var(--bg);border-radius:8px;border-left:3px solid var(--orange)}
+    .mst{counter-reset:steps;display:flex;flex-direction:column;gap:10px}
+    .mst li{font-size:14px;color:var(--text);line-height:1.6;padding:10px 14px 10px 44px;background:var(--bg);border-radius:8px;position:relative;list-style:none;counter-increment:steps}
+    .mst li::before{content:counter(steps);position:absolute;left:12px;top:10px;width:22px;height:22px;background:var(--orange);color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .modal-close{display:block;margin:20px 28px 24px;padding:12px;background:var(--dark);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;width:calc(100% - 56px);transition:opacity .2s}
+    .modal-close:hover{opacity:.85}
+  </style>
 </head>
 <body>
-<div id="app">
-    <div id="header">
-        <span>🍽️</span>
-        <div>
-            <h1>Culinary Chatbot</h1>
-            <p>Zapytaj mnie o przepis na dowolne danie!</p>
-        </div>
+<header>
+  <div class="hl">
+    <span class="hi">🍽️</span>
+    <div>
+      <div class="ht">Culinary Chatbot</div>
+      <div class="hs">Twój asystent kulinarny AI</div>
     </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('chat')">💬 Czat</button>
+    <button class="tab-btn" onclick="switchTab('recipes')" id="tab-recipes-btn">📖 Moje przepisy</button>
+  </div>
+</header>
 
-    <div id="message-history" id="message-history">
-        <!-- Wiadomość powitalna -->
+<div class="main">
+  <div id="panel-chat">
+    <div id="message-history"></div>
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Zapytaj o przepis...">
+      <button id="send-btn" onclick="sendMessage()">Wyślij</button>
     </div>
+  </div>
+  <div id="panel-recipes">
+    <div class="rh">
+      <span class="rt">Zapisane przepisy</span>
+      <button class="refresh-btn" onclick="loadRecipes()">&#8635; Odśwież</button>
+    </div>
+    <div id="recipes-grid"></div>
+  </div>
+</div>
 
-    <div id="input-container">
-        <input type="text" id="user-input" placeholder="Napisz o jaki przepis chodzi..." />
-        <button id="send-btn" onclick="sendMessage()">Wyślij</button>
-    </div>
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal"></div>
 </div>
 
 <script>
-    const history = document.getElementById('message-history');
-    const input = document.getElementById('user-input');
-    const btn = document.getElementById('send-btn');
-    const THREAD_ID = 'user-' + Math.random().toString(36).substr(2, 9);
+const API = 'http://localhost:8000';
+const THREAD_ID = 'user-' + Math.random().toString(36).substr(2, 9);
+const hist = document.getElementById('message-history');
+const inp  = document.getElementById('user-input');
+const btn  = document.getElementById('send-btn');
 
-    // Wiadomość powitalna
-    addMessage('bot', 'Cześć! 👨‍🍳 Jestem Twoim asystentem kulinarnym. Powiedz mi jakie danie Cię interesuje, a przygotuję przepis i wygeneruję zdjęcie!');
+addBot('Czesc! Powiedz mi jakie danie Cie interesuje - wygeneruje przepis i zdjecie!');
+inp.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 
-    input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') sendMessage();
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (tab === 'chat') {
+    document.querySelector('.tab-btn:first-child').classList.add('active');
+    document.getElementById('panel-chat').style.display = 'flex';
+    document.getElementById('panel-recipes').style.display = 'none';
+  } else {
+    document.getElementById('tab-recipes-btn').classList.add('active');
+    document.getElementById('panel-chat').style.display = 'none';
+    document.getElementById('panel-recipes').style.display = 'block';
+    loadRecipes();
+  }
+}
+
+async function sendMessage() {
+  const text = inp.value.trim();
+  if (!text) return;
+  addUser(text);
+  inp.value = '';
+  setLoad(true);
+  const typing = addTyping();
+  try {
+    const res = await fetch(API + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, thread_id: THREAD_ID })
     });
-
-    async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
-
-        addMessage('user', text);
-        input.value = '';
-        setLoading(true);
-
-        const typingEl = addTyping();
-
-        try {
-            const res = await fetch('http://localhost:8000/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, thread_id: THREAD_ID })
-            });
-
-            if (!res.ok) throw new Error(`Błąd serwera: ${res.status}`);
-            const data = await res.json();
-
-            typingEl.remove();
-            const msgEl = addMessage('bot', data.response);
-
-            if (data.image_path) {
-                const img = document.createElement('img');
-                img.src = `http://localhost:8000/images/${data.image_path}`;
-                img.alt = 'Wygenerowane zdjęcie dania';
-                img.onerror = () => img.remove();
-                msgEl.appendChild(img);
-            }
-
-        } catch (err) {
-            typingEl.remove();
-            addMessage('bot', `⚠️ Błąd połączenia z backendem: ${err.message}`, 'error');
-        } finally {
-            setLoading(false);
-            history.scrollTop = history.scrollHeight;
-        }
+    if (!res.ok) throw new Error('Blad serwera: ' + res.status);
+    const data = await res.json();
+    typing.remove();
+    const el = addBot(data.response, data.recipe_id);
+    if (data.image_path) {
+      const img = document.createElement('img');
+      img.src = API + '/images/' + data.image_path;
+      img.alt = 'Zdjecie dania';
+      img.onerror = () => img.remove();
+      el.appendChild(img);
     }
+  } catch (err) {
+    typing.remove();
+    addBot('Blad: ' + err.message);
+  } finally {
+    setLoad(false);
+    hist.scrollTop = hist.scrollHeight;
+  }
+}
 
-    function addMessage(type, text, extraClass = '') {
-        const wrapper = document.createElement('div');
-        wrapper.className = `message ${type} ${extraClass}`;
+function addUser(text) {
+  const w = document.createElement('div');
+  w.className = 'message user';
+  w.innerHTML = '<div class="msg-label">Ty</div><div class="bubble">' + esc(text) + '</div>';
+  hist.appendChild(w);
+  hist.scrollTop = hist.scrollHeight;
+  return w;
+}
 
-        const label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = type === 'user' ? 'Ty' : 'Chef Bot';
+function addBot(text, recipeId) {
+  const w = document.createElement('div');
+  w.className = 'message bot';
+  let btn2 = recipeId ? '<button class="view-btn" onclick="openById(' + recipeId + ', this)">Zobacz przepis</button>' : '';
+  w.innerHTML = '<div class="msg-label">Chef Bot</div><div class="bubble">' + esc(text) + '</div>' + btn2;
+  hist.appendChild(w);
+  hist.scrollTop = hist.scrollHeight;
+  return w.querySelector('.bubble');
+}
 
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        bubble.textContent = text;
+function addTyping() {
+  const w = document.createElement('div');
+  w.className = 'message bot typing';
+  w.innerHTML = '<div class="msg-label">Chef Bot</div><div class="bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  hist.appendChild(w);
+  hist.scrollTop = hist.scrollHeight;
+  return w;
+}
 
-        wrapper.appendChild(label);
-        wrapper.appendChild(bubble);
-        history.appendChild(wrapper);
-        history.scrollTop = history.scrollHeight;
-        return wrapper;
+function setLoad(s) {
+  btn.disabled = s;
+  inp.disabled = s;
+  btn.textContent = s ? '...' : 'Wyslij';
+}
+
+async function loadRecipes() {
+  const grid = document.getElementById('recipes-grid');
+  grid.innerHTML = '<div class="empty-state"><div class="ei">&#9203;</div><p>Ladowanie...</p></div>';
+  try {
+    const res = await fetch(API + '/recipes');
+    if (!res.ok) throw new Error();
+    const recipes = await res.json();
+    if (!recipes.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="ei">&#127859;</div><p>Nie masz jeszcze zadnych przepisow.<br>Wróc do czatu i zapytaj o ulubione danie!</p></div>';
+      return;
     }
+    grid.innerHTML = '';
+    recipes.forEach(r => {
+      const date = r.created_at ? new Date(r.created_at).toLocaleDateString('pl-PL') : '';
+      const imgH = r.image_path
+        ? '<img src="' + API + '/images/' + r.image_path + '" alt="' + esc(r.name) + '">'
+        : '<div class="rc-no-img">&#127859;</div>';
+      const card = document.createElement('div');
+      card.className = 'recipe-card';
+      card.innerHTML = imgH + '<div class="rc-body"><div class="rc-name">' + esc(r.name) + '</div><div class="rc-date">' + date + '</div></div>';
+      card.onclick = () => openModal(r);
+      grid.appendChild(card);
+    });
+  } catch {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="ei">&#9888;</div><p>Nie mozna zaladowac przepisow.<br>Upewnij sie ze backend dziala.</p></div>';
+  }
+}
 
-    function addTyping() {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message bot typing';
-        const label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = 'Chef Bot';
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-        wrapper.appendChild(label);
-        wrapper.appendChild(bubble);
-        history.appendChild(wrapper);
-        history.scrollTop = history.scrollHeight;
-        return wrapper;
-    }
+async function openById(id, el) {
+  try {
+    const res = await fetch(API + '/recipes/' + id);
+    if (!res.ok) throw new Error();
+    openModal(await res.json());
+  } catch { el.textContent = 'Blad'; }
+}
 
-    function setLoading(state) {
-        btn.disabled = state;
-        input.disabled = state;
-        btn.textContent = state ? '...' : 'Wyślij';
-    }
+function openModal(r) {
+  const modal = document.getElementById('modal');
+  const imgH = r.image_path
+    ? '<img src="' + API + '/images/' + r.image_path + '" alt="' + esc(r.name) + '">'
+    : '<div class="modal-no-img">&#127859;</div>';
+  const ingr = Array.isArray(r.ingredients)
+    ? r.ingredients.map(i => '<li>' + esc(i) + '</li>').join('') : '<li>Brak danych</li>';
+  const stps = Array.isArray(r.steps)
+    ? r.steps.map(s => '<li>' + esc(s) + '</li>').join('') : '<li>Brak danych</li>';
+  modal.innerHTML = imgH +
+    '<div class="mb"><div class="mn">' + esc(r.name) + '</div>' +
+    '<div class="ms-title">Skladniki</div><ul class="mi">' + ingr + '</ul>' +
+    '<div class="ms-title">Kroki przygotowania</div><ol class="mst">' + stps + '</ol></div>' +
+    '<button class="modal-close" onclick="closeModal()">Zamknij</button>';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
