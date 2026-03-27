@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+openai
+sqlalchemy
+python-dotenv
+requests
+langchain-openai
+langchain-core
+langgraph
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+bcrypt==4.0.1

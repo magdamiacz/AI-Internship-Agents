@@ -1,0 +1,68 @@
+# ---------------------------------------------------
+# KLUCZE API I ZMIENNE ŚRODOWISKOWE
+# ---------------------------------------------------
+.env
+.env.local
+.env.development
+*.env
+
+# ---------------------------------------------------
+# PYTHON & WIRTUALNE ŚRODOWISKO
+# ---------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---------------------------------------------------
+# NODE.JS (FRONTEND / BACKEND)
+# ---------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+build/
+dist/
+.next/
+
+# ---------------------------------------------------
+# PLIKI GENEROWANE PRZEZ AGENTA (Zrzuty błędów)
+# ---------------------------------------------------
+code_error.txt
+docker_error.txt
+*.log
+
+# ---------------------------------------------------
+# BAZY DANYCH 
+# ---------------------------------------------------
+*.sqlite3
+*.db
+
+# ---------------------------------------------------
+# EDYTORY KODU I SYSTEMY OPERACYJNE
+# ---------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------
+# LANGGRAPH STUDIO I PAMIĘĆ
+# ---------------------------------------------------
+.langgraph_api/
+*.pckl
+*.pickle
+
+# ---------------------------------------------------
+# FOLDERY GENEROWANE PRZEZ AGENTÓW AI
+# ---------------------------------------------------
+
+frontend/
+backend/
+docker/
+docs/

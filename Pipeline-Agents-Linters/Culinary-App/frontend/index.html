@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Culinary Chatbot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f0;
+      color: #2c2c2c;
+      min-height: 100vh;
+    }
+
+    /* AUTH SCREEN */
+    #auth-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+
+    .auth-box {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .auth-box h1 {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+      color: #1a1a2e;
+    }
+
+    .auth-box p.subtitle {
+      color: #888;
+      margin-bottom: 28px;
+      font-size: 0.95rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #888;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .auth-tab.active {
+      color: #e8562a;
+      border-bottom-color: #e8562a;
+      font-weight: 600;
+    }
+
+    .auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .auth-form input {
+      padding: 12px 16px;
+      border: 2px solid #eee;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .auth-form input:focus { border-color: #e8562a; }
+
+    .auth-form button[type="submit"] {
+      padding: 13px;
+      background: #e8562a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .auth-form button[type="submit"]:hover { background: #c94420; }
+
+    .auth-error {
+      color: #e8562a;
+      font-size: 0.9rem;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    /* APP SCREEN */
+    #app-screen { display: none; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background: #1a1a2e;
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-left .logo { font-size: 1.6rem; }
+
+    .header-left h1 { font-size: 1.3rem; font-weight: 700; }
+    .header-left p { font-size: 0.8rem; color: #aaa; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-btn.active { background: #e8562a; color: white; }
+    .nav-btn:not(.active) { background: rgba(255,255,255,0.1); color: white; }
+    .nav-btn:hover { opacity: 0.85; }
+
+    .logout-btn {
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #aaa;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    .user-email { font-size: 0.85rem; color: #aaa; }
+
+    /* CHAT VIEW */
+    #chat-view { display: flex; flex-direction: column; flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 24px 16px; }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 16px;
+      min-height: 300px;
+      max-height: 60vh;
+      padding-right: 4px;
+    }
+
+    .message { display: flex; gap: 10px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .message.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+
+    .message.user .avatar { background: #e8562a; color: white; }
+    .message.bot .avatar { background: #1a1a2e; color: white; }
+
+    .bubble {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .message.user .bubble { background: #e8562a; color: white; border-top-right-radius: 4px; }
+    .message.bot .bubble { background: white; border-top-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    .bubble .recipe-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; color: #1a1a2e; }
+    .bubble h4 { margin: 10px 0 4px; color: #555; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .bubble ul, .bubble ol { padding-left: 18px; }
+    .bubble li { margin: 3px 0; }
+    .bubble img { margin-top: 12px; max-width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .typing { display: flex; gap: 4px; align-items: center; padding: 8px 4px; }
+    .typing span { width: 8px; height: 8px; background: #ccc; border-radius: 50%; animation: bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      background: white;
+      padding: 12px;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    #user-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      padding: 6px 4px;
+      background: transparent;
+    }
+
+    #send-btn {
+      padding: 10px 22px;
+      background: #e8562a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #send-btn:hover { background: #c94420; }
+    #send-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* RECIPES VIEW */
+    #recipes-view { display: none; max-width: 860px; width: 100%; margin: 0 auto; padding: 24px 16px; }
+
+    .recipes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .recipes-header h2 { font-size: 1.5rem; color: #1a1a2e; }
+
+    .refresh-btn {
+      padding: 8px 16px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .recipes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    .recipe-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .recipe-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+
+    .recipe-card img { width: 100%; height: 160px; object-fit: cover; }
+    .recipe-card .no-img { width: 100%; height: 160px; background: linear-gradient(135deg, #f5f5f0, #e8e8e0); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    .recipe-card-body { padding: 14px; }
+    .recipe-card-body h3 { font-size: 1rem; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; }
+    .recipe-card-body p { font-size: 0.8rem; color: #888; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 1rem; }
+
+    /* RECIPE MODAL */
+    #recipe-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #recipe-modal-overlay.open { display: flex; }
+    #recipe-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+    #recipe-modal img { width: 100%; height: 220px; object-fit: cover; border-radius: 16px 16px 0 0; }
+    #recipe-modal .modal-no-img {
+      height: 180px;
+      background: linear-gradient(135deg, #f5f5f0, #e8e8e0);
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    #recipe-modal .modal-body { padding: 22px 24px; }
+    #recipe-modal h2 { font-size: 1.35rem; color: #1a1a2e; margin-bottom: 16px; }
+    #recipe-modal .section { margin-top: 16px; }
+    #recipe-modal .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: #e8562a; font-weight: 600; margin-bottom: 8px; }
+    #recipe-modal ul, #recipe-modal ol { padding-left: 1.25rem; line-height: 1.55; }
+    #recipe-modal li { margin: 4px 0; }
+    #recipe-modal .modal-close {
+      display: block;
+      width: calc(100% - 48px);
+      margin: 16px 24px 24px;
+      padding: 12px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    #recipe-modal .modal-close:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <h1>🍽️ Culinary Chatbot</h1>
+    <p class="subtitle">Twój asystent kulinarny AI</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Logowanie</button>
+      <button class="auth-tab" onclick="switchTab('register')">Rejestracja</button>
+    </div>
+
+    <form class="auth-form" id="auth-form" onsubmit="handleAuth(event)">
+      <input type="email" id="auth-email" placeholder="Email" required autocomplete="email"/>
+      <input type="password" id="auth-password" placeholder="Hasło" required autocomplete="current-password" minlength="6"/>
+      <div class="auth-error" id="auth-error"></div>
+      <button type="submit" id="auth-submit-btn">Zaloguj się</button>
+    </form>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen">
+  <header>
+    <div class="header-left">
+      <span class="logo">🍽️</span>
+      <div>
+        <h1>Culinary Chatbot</h1>
+        <p>Twój asystent kulinarny AI</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="nav-btn active" id="btn-chat" onclick="showView('chat')">💬 Czat</button>
+      <button class="nav-btn" id="btn-recipes" onclick="showView('recipes')">📖 Moje przepisy</button>
+      <span class="user-email" id="user-email-display"></span>
+      <button class="logout-btn" onclick="logout()">Wyloguj</button>
+    </div>
+  </header>
+
+  <!-- CHAT VIEW -->
+  <div id="chat-view">
+    <div id="messages"></div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Zapytaj o przepis, np. 'Zrób mi spaghetti carbonara'..." />
+      <button id="send-btn" onclick="sendMessage()">Wyślij</button>
+    </div>
+  </div>
+
+  <!-- RECIPES VIEW -->
+  <div id="recipes-view">
+    <div class="recipes-header">
+      <h2>Zapisane przepisy</h2>
+      <button class="refresh-btn" onclick="loadRecipes()">↺ Odśwież</button>
+    </div>
+    <div id="recipes-container"></div>
+  </div>
+</div>
+
+<div id="recipe-modal-overlay" onclick="closeRecipeModal(event)">
+  <div id="recipe-modal" onclick="event.stopPropagation()"></div>
+</div>
+
+<script>
+  const API = 'http://localhost:8000';
+  let currentTab = 'login';
+  let threadId = 'thread_' + Math.random().toString(36).substr(2, 9);
+
+  // ── AUTH ──────────────────────────────────────────────────────────────────
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.auth-tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+    });
+    document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'Zaloguj się' : 'Zarejestruj się';
+    document.getElementById('auth-error').textContent = '';
+  }
+
+  async function handleAuth(e) {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const errorEl = document.getElementById('auth-error');
+    const btn = document.getElementById('auth-submit-btn');
+
+    errorEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = currentTab === 'login' ? 'Logowanie...' : 'Rejestracja...';
+
+    try {
+      let res;
+
+      if (currentTab === 'login') {
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+        res = await fetch(`${API}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData
+        });
+      } else {
+        res = await fetch(`${API}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+      }
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        throw new Error('Błąd serwera lub brak połączenia (nieprawidłowa odpowiedź JSON)');
+      }
+
+      if (!res.ok) {
+        let errorMessage = 'Błąd autoryzacji';
+
+        if (data && data.detail) {
+          if (Array.isArray(data.detail)) {
+            // Bezpiecznie wyciągamy pole 'msg' lub (jeśli go nie ma) zmieniamy obiekt na czytelny JSON
+            errorMessage = data.detail.map(err => err.msg ? err.msg : JSON.stringify(err)).join(' | ');
+          } else if (typeof data.detail === 'object') {
+            // Jeśli detail to pojedynczy obiekt
+            errorMessage = JSON.stringify(data.detail);
+          } else {
+            // Jeśli to zwykły tekst
+            errorMessage = String(data.detail);
+          }
+        } else if (data && typeof data === 'object') {
+          // Jeśli backend zwrócił odpowiedź w ogóle bez pola "detail"
+          errorMessage = JSON.stringify(data);
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      localStorage.setItem('jwt_token', data.access_token);
+      localStorage.setItem('user_email', email);
+      showApp(email);
+
+    } catch (err) {
+      errorEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = currentTab === 'login' ? 'Zaloguj się' : 'Zarejestruj się';
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user_email');
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('auth-email').value = '';
+    document.getElementById('auth-password').value = '';
+  }
+
+  function getToken() {
+    return localStorage.getItem('jwt_token');
+  }
+
+  function authHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    };
+  }
+
+  function showApp(email) {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('user-email-display').textContent = email;
+    showView('chat');
+    
+    // Zapobiegamy wielokrotnemu dodawaniu wiadomości powitalnej
+    if (document.getElementById('messages').innerHTML.trim() === '') {
+        addBotMessage('Cześć! Jestem twoim asystentem kulinarnym. Powiedz mi co chcesz ugotować! 🍳');
+    }
+  }
+
+  // ── VIEWS ──────────────────────────────────────────────────────────────────
+
+  function showView(view) {
+    document.getElementById('chat-view').style.display = view === 'chat' ? 'flex' : 'none';
+    document.getElementById('recipes-view').style.display = view === 'recipes' ? 'block' : 'none';
+    document.getElementById('btn-chat').classList.toggle('active', view === 'chat');
+    document.getElementById('btn-recipes').classList.toggle('active', view === 'recipes');
+    if (view === 'recipes') loadRecipes();
+  }
+
+  // ── CHAT ──────────────────────────────────────────────────────────────────
+
+  function addUserMessage(text) {
+    const div = document.createElement('div');
+    div.className = 'message user';
+    div.innerHTML = `<div class="avatar">👤</div><div class="bubble">${escapeHtml(text)}</div>`;
+    document.getElementById('messages').appendChild(div);
+    scrollMessages();
+  }
+
+  function addBotMessage(text, imageFilename) {
+    const div = document.createElement('div');
+    div.className = 'message bot';
+    let content = formatResponse(text);
+    if (imageFilename) {
+      content += `<img src="${API}/images/${imageFilename}" alt="Zdjęcie potrawy" loading="lazy"/>`;
+    }
+    div.innerHTML = `<div class="avatar">🤖</div><div class="bubble">${content}</div>`;
+    document.getElementById('messages').appendChild(div);
+    scrollMessages();
+  }
+
+  function addTypingIndicator() {
+    const div = document.createElement('div');
+    div.className = 'message bot';
+    div.id = 'typing-indicator';
+    div.innerHTML = `<div class="avatar">🤖</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    document.getElementById('messages').appendChild(div);
+    scrollMessages();
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function scrollMessages() {
+    const el = document.getElementById('messages');
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function formatResponse(text) {
+    if (!text) return '';
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+      .replace(/^## (.+)$/gm, '<div class="recipe-name">$1</div>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function sendMessage() {
+    const btn = document.getElementById('send-btn');
+    if (btn.disabled) return; // Zabezpieczenie przed podwójnym wysłaniem
+
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    btn.disabled = true;
+    addUserMessage(text);
+    addTypingIndicator();
+
+    try {
+      const res = await fetch(`${API}/chat`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ message: text, thread_id: threadId })
+      });
+
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+
+      const data = await res.json();
+      removeTypingIndicator();
+
+      if (!res.ok) throw new Error(data.detail || 'Błąd serwera');
+
+      const imageFilename = data.image_path ? data.image_path.split('/').pop().split('\\').pop() : null;
+      addBotMessage(data.response || JSON.stringify(data), imageFilename);
+
+    } catch (err) {
+      removeTypingIndicator();
+      addBotMessage('Przepraszam, wystąpił błąd: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      input.focus();
+    }
+  }
+
+  document.getElementById('user-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { 
+      e.preventDefault(); 
+      sendMessage(); 
+    }
+  });
+
+  // ── RECIPES ───────────────────────────────────────────────────────────────
+
+  async function loadRecipes() {
+    const container = document.getElementById('recipes-container');
+    container.innerHTML = '<p style="color:#aaa;text-align:center;padding:40px">Ładowanie...</p>';
+
+    try {
+      const res = await fetch(`${API}/recipes`, { headers: authHeaders() });
+
+      if (res.status === 401) { logout(); return; }
+
+      const recipes = await res.json();
+
+      if (!recipes.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">🍽️</div><p>Nie masz jeszcze żadnych przepisów.<br>Zacznij czat i poproś o przepis!</p></div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="recipes-grid" id="recipes-grid">${recipes.map(recipeCard).join('')}</div>`;
+      // Usunąłem stąd addEventListener, żeby zapobiec wyciekom pamięci (został przeniesiony do window.onload)
+
+    } catch (err) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Nie można załadować przepisów.<br>Upewnij się że backend działa.</p></div>`;
+    }
+  }
+
+  function normalizeListField(val) {
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  function recipeCard(r) {
+    const ingredients = normalizeListField(r.ingredients);
+    const safeName = escapeHtml(r.name || '');
+    const imgHtml = r.image_path
+      ? `<img src="${API}/images/${String(r.image_path).split('/').pop().split('\\').pop()}" alt="${safeName}" loading="lazy">`
+      : `<div class="no-img">🍽️</div>`;
+    return `<div class="recipe-card" data-recipe-id="${Number(r.id)}">
+      ${imgHtml}
+      <div class="recipe-card-body">
+        <h3>${safeName}</h3>
+        <p>${ingredients.length} składników · ${r.created_at ? new Date(r.created_at).toLocaleDateString('pl') : ''}</p>
+      </div>
+    </div>`;
+  }
+
+  function onRecipeCardClick(e) {
+    const card = e.target.closest('.recipe-card');
+    if (!card) return;
+    const id = card.getAttribute('data-recipe-id');
+    if (id) openRecipeModal(Number(id));
+  }
+
+  async function openRecipeModal(recipeId) {
+    const overlay = document.getElementById('recipe-modal-overlay');
+    const modal = document.getElementById('recipe-modal');
+    modal.innerHTML = '<div class="modal-body"><p style="color:#888">Ładowanie…</p></div>';
+    overlay.classList.add('open');
+
+    try {
+      const res = await fetch(`${API}/recipes/${recipeId}`, { headers: authHeaders() });
+      if (res.status === 401) {
+        overlay.classList.remove('open');
+        logout();
+        return;
+      }
+      if (!res.ok) throw new Error('Nie znaleziono przepisu');
+      const r = await res.json();
+      const ingredients = normalizeListField(r.ingredients);
+      const steps = normalizeListField(r.steps);
+      const imgTop = r.image_path
+        ? `<img src="${API}/images/${String(r.image_path).split('/').pop().split('\\').pop()}" alt="">`
+        : `<div class="modal-no-img">🍽️</div>`;
+      const ingList = ingredients.length
+        ? `<ul>${ingredients.map(i => `<li>${escapeHtml(String(i))}</li>`).join('')}</ul>`
+        : '<p style="color:#888">Brak listy składników (model mógł użyć innego formatu).</p>';
+      const stepList = steps.length
+        ? `<ol>${steps.map(s => `<li>${escapeHtml(String(s))}</li>`).join('')}</ol>`
+        : '<p style="color:#888">Brak kroków w zapisanej strukturze.</p>';
+      modal.innerHTML =
+        imgTop +
+        `<div class="modal-body">
+          <h2>${escapeHtml(r.name || '')}</h2>
+          <div class="section"><div class="section-title">Składniki</div>${ingList}</div>
+          <div class="section"><div class="section-title">Kroki</div>${stepList}</div>
+        </div>
+        <button type="button" class="modal-close" onclick="closeRecipeModal()">Zamknij</button>`;
+    } catch (err) {
+      modal.innerHTML =
+        `<div class="modal-body"><p style="color:#c0392b">${escapeHtml(err.message)}</p></div>
+        <button type="button" class="modal-close" onclick="closeRecipeModal()">Zamknij</button>`;
+    }
+  }
+
+  function closeRecipeModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('recipe-modal-overlay').classList.remove('open');
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+
+  window.onload = () => {
+    // Podpinamy nasłuchiwanie na kliknięcia w przepisy tylko RAZ (Event Delegation)
+    document.getElementById('recipes-container').addEventListener('click', onRecipeCardClick);
+
+    const token = localStorage.getItem('jwt_token');
+    const email = localStorage.getItem('user_email');
+    if (token && email) {
+      showApp(email);
+    }
+  };
+</script>
+</body>
+</html>
