@@ -2,7 +2,6 @@
 RAG nad istniejącym kodem projektu — uproszczony wzorzec z tutorialu LangChain:
 indeksowanie (load → split → embed → vector store) i similarity_search przy fazie MODIFY.
 
-Dokumentacja: https://docs.langchain.com/oss/python/langchain/rag
 """
 
 from __future__ import annotations
