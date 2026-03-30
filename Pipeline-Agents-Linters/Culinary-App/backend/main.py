@@ -48,6 +48,7 @@ class Token(BaseModel):
 class RegisterBody(BaseModel):
     email: str
     password: str
+    confirm_password: str
 
 
 class User(BaseModel):
@@ -103,6 +104,9 @@ async def startup_event():
 async def register(body: RegisterBody):
     email = body.email.strip().lower()
     password = body.password
+    confirm_password = body.confirm_password
+    if password != confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="Hasło musi mieć co najmniej 6 znaków")
     if not email:

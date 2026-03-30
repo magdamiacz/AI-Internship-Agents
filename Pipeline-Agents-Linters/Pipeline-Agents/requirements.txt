@@ -3,4 +3,5 @@ langgraph
 langgraph-cli[inmem]
 python-dotenv
 langchain-core
+langchain-text-splitters
 ruff

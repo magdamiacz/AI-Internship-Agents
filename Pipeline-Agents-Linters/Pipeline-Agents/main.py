@@ -140,6 +140,12 @@ if __name__ == "__main__":
         print("Nieprawidłowy wybór.")
         exit(1)
 
+    print(
+        "\nOpcjonalnie — wskazówki do tego uruchomienia (np. co zmienić w istniejącym kodzie, "
+        "czego pilnować). Używane w zapytaniu RAG i w prompcie coder_agent. Enter = pomiń."
+    )
+    user_project_guidance = input("> ").strip()
+
     current_phase = phases_to_run[0]
     initial_state = {
         "messages": [HumanMessage(content="Kontynuuj pracę nad projektem.")],
@@ -153,6 +159,7 @@ if __name__ == "__main__":
         "review_file": "docs/code_review.md",
         "readme_file": "docs/README.md",
         "output_dir": output_dir,
+        "user_project_guidance": user_project_guidance,
     }
 
     config = {"configurable": {"thread_id": "pipeline-session"}}
@@ -177,7 +184,8 @@ if __name__ == "__main__":
                 graph.update_state(config, {"messages": [HumanMessage(content=user_input)]}, as_node="ask_continue")
             else:
                 user_input = input(
-                    "\n[AKCJA] Wpisz 'ok' lub 'akceptuj' aby zatwierdzić, lub podaj uwagi: "
+                    "\n[AKCJA] 'ok' / 'akceptuj' aby zapisać i przejść dalej, "
+                    "lub wpisz konkretne uwagi (co poprawić w szkicu / kodzie): "
                 )
                 graph.update_state(config, {"messages": [HumanMessage(content=user_input)]}, as_node="human_review")
 

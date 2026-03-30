@@ -337,15 +337,24 @@
     <p class="subtitle">Twój asystent kulinarny AI</p>
 
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Logowanie</button>
-      <button class="auth-tab" onclick="switchTab('register')">Rejestracja</button>
+      <button type="button" class="auth-tab active" onclick="switchTab('login')">Logowanie</button>
+      <button type="button" class="auth-tab" onclick="switchTab('register')">Rejestracja</button>
     </div>
 
-    <form class="auth-form" id="auth-form" onsubmit="handleAuth(event)">
-      <input type="email" id="auth-email" placeholder="Email" required autocomplete="email"/>
-      <input type="password" id="auth-password" placeholder="Hasło" required autocomplete="current-password" minlength="6"/>
-      <div class="auth-error" id="auth-error"></div>
-      <button type="submit" id="auth-submit-btn">Zaloguj się</button>
+    <div class="auth-error" id="auth-error"></div>
+
+    <!-- Osobne formularze: brak ukrytych pól `required` (unika błędu „not focusable”) -->
+    <form class="auth-form" id="login-form" onsubmit="handleLogin(event)">
+      <input type="email" id="login-email" name="email" placeholder="Email" required autocomplete="email"/>
+      <input type="password" id="login-password" name="password" placeholder="Hasło" required autocomplete="current-password" minlength="6"/>
+      <button type="submit" id="login-submit-btn">Zaloguj się</button>
+    </form>
+
+    <form class="auth-form" id="register-form" style="display: none;" onsubmit="handleRegister(event)">
+      <input type="email" id="reg-email" name="email" placeholder="Email" required autocomplete="email"/>
+      <input type="password" id="reg-password" name="password" placeholder="Hasło" required autocomplete="new-password" minlength="6"/>
+      <input type="password" id="reg-confirm" name="confirm_password" placeholder="Potwierdź hasło" required autocomplete="new-password" minlength="6"/>
+      <button type="submit" id="register-submit-btn">Zarejestruj się</button>
     </form>
   </div>
 </div>
@@ -403,79 +412,111 @@
     document.querySelectorAll('.auth-tab').forEach((t, i) => {
       t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
     });
-    document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'Zaloguj się' : 'Zarejestruj się';
     document.getElementById('auth-error').textContent = '';
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('register-form');
+    if (tab === 'login') {
+      loginForm.style.display = 'flex';
+      regForm.style.display = 'none';
+      const re = document.getElementById('reg-email').value.trim();
+      if (re) document.getElementById('login-email').value = re;
+    } else {
+      loginForm.style.display = 'none';
+      regForm.style.display = 'flex';
+      const le = document.getElementById('login-email').value.trim();
+      if (le) document.getElementById('reg-email').value = le;
+    }
   }
 
-  async function handleAuth(e) {
+  async function parseAuthResponse(res) {
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      throw new Error('Błąd serwera lub brak połączenia (nieprawidłowa odpowiedź JSON)');
+    }
+    if (!res.ok) {
+      let errorMessage = 'Błąd autoryzacji';
+      if (data && data.detail) {
+        if (Array.isArray(data.detail)) {
+          errorMessage = data.detail.map(err => (err.msg ? err.msg : JSON.stringify(err))).join(' | ');
+        } else if (typeof data.detail === 'object') {
+          errorMessage = JSON.stringify(data.detail);
+        } else {
+          errorMessage = String(data.detail);
+        }
+      } else if (data && typeof data === 'object') {
+        errorMessage = JSON.stringify(data);
+      }
+      throw new Error(errorMessage);
+    }
+    return data;
+  }
+
+  async function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
+    currentTab = 'login';
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
     const errorEl = document.getElementById('auth-error');
-    const btn = document.getElementById('auth-submit-btn');
+    const btn = document.getElementById('login-submit-btn');
 
     errorEl.textContent = '';
     btn.disabled = true;
-    btn.textContent = currentTab === 'login' ? 'Logowanie...' : 'Rejestracja...';
+    btn.textContent = 'Logowanie...';
 
     try {
-      let res;
-
-      if (currentTab === 'login') {
-        const formData = new URLSearchParams();
-        formData.append('username', email);
-        formData.append('password', password);
-        res = await fetch(`${API}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: formData
-        });
-      } else {
-        res = await fetch(`${API}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-      }
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (parseErr) {
-        throw new Error('Błąd serwera lub brak połączenia (nieprawidłowa odpowiedź JSON)');
-      }
-
-      if (!res.ok) {
-        let errorMessage = 'Błąd autoryzacji';
-
-        if (data && data.detail) {
-          if (Array.isArray(data.detail)) {
-            // Bezpiecznie wyciągamy pole 'msg' lub (jeśli go nie ma) zmieniamy obiekt na czytelny JSON
-            errorMessage = data.detail.map(err => err.msg ? err.msg : JSON.stringify(err)).join(' | ');
-          } else if (typeof data.detail === 'object') {
-            // Jeśli detail to pojedynczy obiekt
-            errorMessage = JSON.stringify(data.detail);
-          } else {
-            // Jeśli to zwykły tekst
-            errorMessage = String(data.detail);
-          }
-        } else if (data && typeof data === 'object') {
-          // Jeśli backend zwrócił odpowiedź w ogóle bez pola "detail"
-          errorMessage = JSON.stringify(data);
-        }
-
-        throw new Error(errorMessage);
-      }
-
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+      const res = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      });
+      const data = await parseAuthResponse(res);
       localStorage.setItem('jwt_token', data.access_token);
       localStorage.setItem('user_email', email);
       showApp(email);
-
     } catch (err) {
       errorEl.textContent = err.message;
     } finally {
       btn.disabled = false;
-      btn.textContent = currentTab === 'login' ? 'Zaloguj się' : 'Zarejestruj się';
+      btn.textContent = 'Zaloguj się';
+    }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    currentTab = 'register';
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirmPassword = document.getElementById('reg-confirm').value;
+    const errorEl = document.getElementById('auth-error');
+    const btn = document.getElementById('register-submit-btn');
+
+    errorEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Rejestracja...';
+
+    try {
+      if (password !== confirmPassword) {
+        throw new Error('Hasła nie są zgodne');
+      }
+      const res = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, confirm_password: confirmPassword })
+      });
+      const data = await parseAuthResponse(res);
+      localStorage.setItem('jwt_token', data.access_token);
+      localStorage.setItem('user_email', email);
+      showApp(email);
+    } catch (err) {
+      errorEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Zarejestruj się';
     }
   }
 
@@ -485,8 +526,12 @@
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('messages').innerHTML = '';
-    document.getElementById('auth-email').value = '';
-    document.getElementById('auth-password').value = '';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('reg-email').value = '';
+    document.getElementById('reg-password').value = '';
+    document.getElementById('reg-confirm').value = '';
+    switchTab('login');
   }
 
   function getToken() {
@@ -506,7 +551,6 @@
     document.getElementById('user-email-display').textContent = email;
     showView('chat');
     
-    // Zapobiegamy wielokrotnemu dodawaniu wiadomości powitalnej
     if (document.getElementById('messages').innerHTML.trim() === '') {
         addBotMessage('Cześć! Jestem twoim asystentem kulinarnym. Powiedz mi co chcesz ugotować! 🍳');
     }
@@ -580,7 +624,7 @@
 
   async function sendMessage() {
     const btn = document.getElementById('send-btn');
-    if (btn.disabled) return; // Zabezpieczenie przed podwójnym wysłaniem
+    if (btn.disabled) return;
 
     const input = document.getElementById('user-input');
     const text = input.value.trim();
@@ -646,7 +690,6 @@
       }
 
       container.innerHTML = `<div class="recipes-grid" id="recipes-grid">${recipes.map(recipeCard).join('')}</div>`;
-      // Usunąłem stąd addEventListener, żeby zapobiec wyciekom pamięci (został przeniesiony do window.onload)
 
     } catch (err) {
       container.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Nie można załadować przepisów.<br>Upewnij się że backend działa.</p></div>`;
@@ -737,7 +780,6 @@
   // ── INIT ──────────────────────────────────────────────────────────────────
 
   window.onload = () => {
-    // Podpinamy nasłuchiwanie na kliknięcia w przepisy tylko RAZ (Event Delegation)
     document.getElementById('recipes-container').addEventListener('click', onRecipeCardClick);
 
     const token = localStorage.getItem('jwt_token');

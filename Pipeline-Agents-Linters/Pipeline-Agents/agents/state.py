@@ -29,3 +29,6 @@ class AgentState(TypedDict):
 
     # Lista faz do uruchomienia, np. ["code", "review", "docker"]
     phases_to_run: list
+
+    # Opcjonalne wskazówki użytkownika przy starcie (co zmienić / poprawić w istniejącym projekcie)
+    user_project_guidance: str
