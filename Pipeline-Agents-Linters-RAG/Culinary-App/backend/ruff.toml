@@ -1,0 +1,2 @@
+# Konfiguracja Ruff przeniesiona do ../lint/ruff.toml
+# Uruchomienie: ruff check . --config ../lint/ruff.toml
