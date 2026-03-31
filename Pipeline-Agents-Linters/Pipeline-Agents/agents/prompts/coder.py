@@ -46,6 +46,12 @@ MODIFICATION INSTRUCTIONS:
 4. Preserve all existing functionality not affected by the task.
 5. Fix linter issues in files you touch (sorted imports, unused imports, newline at EOF).
 
+AUTH / SECURITY (if Task/Arch/Tech require hardening — see docs):
+- Add or extend `backend/security.py`: `hash_password`, `verify_password` returning (ok, needs_rehash); bcrypt; optional HMAC(pepper) before bcrypt; legacy verify for old bcrypt(plain); no duplicate CryptContext in database.py.
+- `backend/main.py`: Pydantic `EmailStr`, `Field` limits, JWT with `iat`/`iss`, startup check on weak `JWT_SECRET` when `ENV=production`, `OAuth2PasswordBearer(tokenUrl="/login")`, rehash on login via `update_user_hashed_password` when `needs_rehash`.
+- `backend/database.py`: `create_user` uses `security.hash_password`; expose `update_user_hashed_password`.
+- README + `backend/.env.example`: `JWT_SECRET`, `PASSWORD_PEPPER`, explain salt (bcrypt) vs pepper.
+
 Task:\n{task_ctx}\nArch:\n{arch_ctx}\nTech:\n{tech_ctx}"""
 
 

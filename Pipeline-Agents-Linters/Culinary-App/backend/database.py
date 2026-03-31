@@ -2,15 +2,14 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
-from passlib.context import CryptContext
 import json
+
+from security import hash_password
 
 DATABASE_URL = "sqlite:///culinary.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class User(Base):
     __tablename__ = 'users'
@@ -114,9 +113,20 @@ def get_user_by_id(user_id: int):
         db.close()
 
 
+def update_user_hashed_password(user_id: int, hashed_password: str) -> None:
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            user.hashed_password = hashed_password
+            db.commit()
+    finally:
+        db.close()
+
+
 def create_user(email: str, password: str):
     db = SessionLocal()
-    hashed_password = pwd_context.hash(password)
+    hashed_password = hash_password(password)
     user = User(email=email, hashed_password=hashed_password)
     db.add(user)
     db.commit()

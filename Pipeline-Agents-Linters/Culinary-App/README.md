@@ -36,18 +36,19 @@ This project is a culinary chatbot web application that generates recipes and co
    ```
 
 4. **Set environment variables**:
-   Create a `.env` file in the `backend` directory and add the following:
-   ```
-   OPENAI_API_KEY=your_openai_api_key
-   LANGSMITH_API_KEY=your_langsmith_api_key
-   TAVILY_API_KEY=your_tavily_api_key
-   JWT_SECRET=your_jwt_secret_key
-   ```
+   Copy `backend/.env.example` to `backend/.env` and fill in at least:
+   - `OPENAI_API_KEY` — required for the AI features.
+   - `JWT_SECRET` — long random string for signing JWTs (e.g. `openssl rand -hex 32`). Do not use the default value in production.
+   - `PASSWORD_PEPPER` (recommended) — application secret used with HMAC-SHA256 before bcrypt. **Salt** for each password is still generated automatically inside bcrypt; **pepper** is one shared server secret, not stored in the database. If unset, the app uses legacy `bcrypt(plain password)` for compatibility; after you set `PASSWORD_PEPPER`, new signups use the stronger scheme and existing users get upgraded on next successful login.
 
-5. **Run the FastAPI server**:
+   Optional: `ENV=production` — the app will refuse to start if `JWT_SECRET` is still the default or too short.
+
+5. **Run the FastAPI server** (from the repository root, or `cd backend` and adjust the module path):
    ```bash
-   uvicorn backend.main:app --reload
+   cd backend
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
+   Or from project root: `uvicorn backend.main:app --reload`
 
 6. **Open the frontend**:
    Open `frontend/index.html` in your web browser.

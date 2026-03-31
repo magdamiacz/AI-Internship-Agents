@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+email-validator
 openai
 sqlalchemy
 python-dotenv
